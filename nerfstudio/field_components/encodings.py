@@ -384,7 +384,7 @@ class HashEncoding(Encoding):
     ) -> dict:
         """Get the encoding configuration for tcnn if implemented"""
         encoding_config = {
-            "otype": "HashGrid",
+            "otype": "Grid",
             "n_levels": num_levels,
             "n_features_per_level": features_per_level,
             "log2_hashmap_size": log2_hashmap_size,

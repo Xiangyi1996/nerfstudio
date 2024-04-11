@@ -150,7 +150,7 @@ class SDFField(Field):
             self.encoding = tcnn.Encoding(
                 n_input_dims=3,
                 encoding_config={
-                    "otype": "HashGrid" if config.use_hash else "DenseGrid",
+                    "otype": "Grid" if config.use_hash else "DenseGrid",
                     "n_levels": config.num_levels,
                     "n_features_per_level": config.features_per_level,
                     "log2_hashmap_size": config.log2_hashmap_size,

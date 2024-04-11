@@ -129,7 +129,7 @@ class NerfactoField(Field):
         )
 
         self.position_encoding = NeRFEncoding(
-            in_dim=3, num_frequencies=2, min_freq_exp=0, max_freq_exp=2 - 1, implementation=implementation
+            in_dim=3, num_frequencies=2, min_freq_exp=0, max_freq_exp=2 - 1, implementation='torch'
         )
 
         self.mlp_base = MLPWithHashEncoding(
