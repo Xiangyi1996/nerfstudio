@@ -44,6 +44,7 @@ from nerfstudio.utils.rich_utils import CONSOLE
 from nerfstudio.utils.writer import EventName, TimeWriter
 from nerfstudio.viewer.viewer import Viewer as ViewerState
 from nerfstudio.viewer_legacy.server.viewer_state import ViewerLegacyState
+import intel_extension_for_pytorch as ipex
 
 TRAIN_INTERATION_OUTPUT = Tuple[torch.Tensor, Dict[str, torch.Tensor], Dict[str, torch.Tensor]]
 TORCH_DEVICE = str
@@ -118,14 +119,14 @@ class Trainer:
         if self.device == "cuda":
             self.device += f":{local_rank}"
         self.mixed_precision: bool = self.config.mixed_precision
-        self.use_grad_scaler: bool = self.mixed_precision or self.config.use_grad_scaler
         self.training_state: Literal["training", "paused", "completed"] = "training"
         self.gradient_accumulation_steps: DefaultDict = defaultdict(lambda: 1)
         self.gradient_accumulation_steps.update(self.config.gradient_accumulation_steps)
 
-        if self.device == "cpu":
+        if self.device == "cpu" or self.device == "xpu":
             self.mixed_precision = False
             CONSOLE.print("Mixed precision is disabled for CPU training.")
+        self.use_grad_scaler: bool = self.mixed_precision or self.config.use_grad_scaler
         self._start_step: int = 0
         # optimizers
         self.grad_scaler = GradScaler(enabled=self.use_grad_scaler)
@@ -464,10 +465,12 @@ class Trainer:
             group for group in self.optimizers.parameters.keys() if step % self.gradient_accumulation_steps[group] == 0
         ]
         self.optimizers.zero_grad_some(needs_zero)
-        cpu_or_cuda_str: str = self.device.split(":")[0]
-        cpu_or_cuda_str = "cpu" if cpu_or_cuda_str == "mps" else cpu_or_cuda_str
-
-        with torch.autocast(device_type=cpu_or_cuda_str, enabled=self.mixed_precision):
+        cpu_or_gpu_str: str = self.device.split(":")[0]
+        cpu_or_gpu_str = "cpu" if cpu_or_gpu_str == "mps" else cpu_or_gpu_str
+        
+        
+        
+        with torch.autocast(device_type=cpu_or_gpu_str, enabled=self.mixed_precision):
             _, loss_dict, metrics_dict = self.pipeline.get_train_loss_dict(step=step)
             loss = functools.reduce(torch.add, loss_dict.values())
         self.grad_scaler.scale(loss).backward()  # type: ignore

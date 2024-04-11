@@ -101,7 +101,20 @@ def eval_setup(
     config.load_dir = config.get_checkpoint_dir()
 
     # setup pipeline (which includes the DataManager)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    if torch.cuda.is_available():
+        device_type = "cuda"
+    else:
+        try:
+            import intel_extension_for_pytorch
+            device_type = "xpu" if torch.xpu.is_available() else "cpu"
+        except Exception:
+            device_type = "cpu"
+    print('device_type:', device_type)
+    device = torch.device(device_type)
+    
+    
     pipeline = config.pipeline.setup(device=device, test_mode=test_mode)
     assert isinstance(pipeline, Pipeline)
     pipeline.eval()

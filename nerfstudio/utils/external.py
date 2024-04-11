@@ -39,10 +39,10 @@ TCNN_EXISTS = False
 tcnn_import_exception = None
 tcnn = None
 try:
-    import tinycudann
+    import tiny_dpcpp_nn 
 
-    tcnn = tinycudann
-    del tinycudann
+    tcnn = tiny_dpcpp_nn
+    del tiny_dpcpp_nn
     TCNN_EXISTS = True
 except ModuleNotFoundError as _exp:
     tcnn_import_exception = _exp

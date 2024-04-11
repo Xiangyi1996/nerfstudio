@@ -164,7 +164,7 @@ def test_tensor_hash_encoder():
         log2_hashmap_size=5,
         implementation="tcnn",
     )
-    encoded_tcnn = encoder(in_tensor).float().cpu()
+    encoded_tcnn = encoder(in_tensor).float().xpu()
     assert encoded_tcnn.shape == (10, out_dim)
 
 
